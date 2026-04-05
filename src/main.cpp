@@ -4,6 +4,7 @@
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
+    app.setStyle(QStringLiteral("Fusion"));
     app.setApplicationName(QStringLiteral("HalbyFbxEditor"));
     app.setOrganizationName(QStringLiteral("Halby"));
 
