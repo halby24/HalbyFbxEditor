@@ -24,7 +24,6 @@ MainWindow::MainWindow(QWidget* parent)
     resize(1200, 800);
 
     setupMenuBar();
-    setupToolBar();
     setupStatusBar();
     setupDockWidgets();
 
@@ -67,21 +66,10 @@ void MainWindow::setupMenuBar()
     auto* redoAction = mUndoStack->createRedoAction(this, tr("&Redo"));
     redoAction->setShortcut(QKeySequence::Redo);
     editMenu->addAction(redoAction);
-}
 
-void MainWindow::setupToolBar()
-{
-    auto* toolbar = addToolBar(tr("Main"));
-    toolbar->setObjectName(QStringLiteral("MainToolBar"));
-
-    toolbar->addAction(tr("Open"), this, &MainWindow::fileOpen);
-    toolbar->addAction(tr("Save"), this, &MainWindow::fileSave);
-    toolbar->addAction(tr("Save As"), this, &MainWindow::fileSaveAs);
-    toolbar->addSeparator();
-    toolbar->addAction(mUndoStack->createUndoAction(this, tr("Undo")));
-    toolbar->addAction(mUndoStack->createRedoAction(this, tr("Redo")));
-    toolbar->addSeparator();
-    toolbar->addAction(tr("Scene Info"), this, &MainWindow::showSceneInfo);
+    // View menu
+    auto* viewMenu = menuBar()->addMenu(tr("&View"));
+    viewMenu->addAction(tr("&Scene Info"), this, &MainWindow::showSceneInfo);
 }
 
 void MainWindow::setupStatusBar()

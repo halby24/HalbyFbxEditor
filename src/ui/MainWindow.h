@@ -27,7 +27,6 @@ private:
     QLabel* mStatusLabel = nullptr;
 
     void setupMenuBar();
-    void setupToolBar();
     void setupStatusBar();
     void setupDockWidgets();
 
