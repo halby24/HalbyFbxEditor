@@ -1,0 +1,12 @@
+{
+  "name": "halby-fbx-editor",
+  "version-string": "0.1.0",
+  "dependencies": [
+    {
+      "name": "qtbase",
+      "default-features": false,
+      "features": ["widgets"]
+    }
+  ],
+  "builtin-baseline": "77df67cfff9c12ccfdb52284e07c87c75092f723"
+}
