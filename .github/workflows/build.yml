@@ -1,0 +1,78 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout FBX SDK
+        uses: actions/checkout@v4
+        with:
+          repository: halby24/fbx-sdk
+          token: ${{ secrets.FBXSDK_PAT }}
+          lfs: true
+          path: fbx-sdk
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+
+      - name: Install Qt6
+        run: vcpkg install qt6:x64-windows
+
+      - name: Configure
+        run: >
+          cmake -B build -S .
+          -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DFBXSDK_ROOT=${{ github.workspace }}/fbx-sdk/windows
+
+      - name: Build (Release)
+        run: cmake --build build --config Release
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HalbyFbxEditor-windows
+          path: |
+            build/src/Release/HalbyFbxEditor.exe
+            build/src/Release/*.dll
+            build/src/Release/platforms/
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout FBX SDK
+        uses: actions/checkout@v4
+        with:
+          repository: halby24/fbx-sdk
+          token: ${{ secrets.FBXSDK_PAT }}
+          lfs: true
+          path: fbx-sdk
+
+      - name: Install Qt6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qt6-base-dev libgl1-mesa-dev
+
+      - name: Configure
+        run: >
+          cmake -B build -S .
+          -DCMAKE_BUILD_TYPE=Release
+          -DFBXSDK_ROOT=${{ github.workspace }}/fbx-sdk/linux
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HalbyFbxEditor-linux
+          path: build/src/HalbyFbxEditor

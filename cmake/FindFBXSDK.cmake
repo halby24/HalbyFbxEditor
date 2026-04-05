@@ -15,8 +15,10 @@
 if(NOT FBXSDK_ROOT)
     if(DEFINED ENV{FBXSDK_ROOT})
         set(FBXSDK_ROOT "$ENV{FBXSDK_ROOT}")
-    else()
+    elseif(WIN32)
         set(FBXSDK_ROOT "C:/Program Files/Autodesk/FBX/FBX SDK/2020.3.9")
+    else()
+        set(FBXSDK_ROOT "/usr/local")
     endif()
 endif()
 
@@ -27,31 +29,46 @@ find_path(FBXSDK_INCLUDE_DIR
     NO_DEFAULT_PATH
 )
 
-# --- Find import libraries (Dynamic Link) -----------------------------------
-find_library(FBXSDK_LIBRARY_RELEASE
-    NAMES libfbxsdk
-    PATHS "${FBXSDK_ROOT}/lib/x64/release"
-    NO_DEFAULT_PATH
-)
+if(WIN32)
+    # --- Windows: Find import libraries (Dynamic Link) ----------------------
+    find_library(FBXSDK_LIBRARY_RELEASE
+        NAMES libfbxsdk
+        PATHS "${FBXSDK_ROOT}/lib/x64/release"
+        NO_DEFAULT_PATH
+    )
 
-find_library(FBXSDK_LIBRARY_DEBUG
-    NAMES libfbxsdk
-    PATHS "${FBXSDK_ROOT}/lib/x64/debug"
-    NO_DEFAULT_PATH
-)
+    find_library(FBXSDK_LIBRARY_DEBUG
+        NAMES libfbxsdk
+        PATHS "${FBXSDK_ROOT}/lib/x64/debug"
+        NO_DEFAULT_PATH
+    )
 
-# --- Find DLLs for runtime copy --------------------------------------------
-find_file(FBXSDK_DLL_RELEASE
-    NAMES libfbxsdk.dll
-    PATHS "${FBXSDK_ROOT}/lib/x64/release"
-    NO_DEFAULT_PATH
-)
+    # --- Find DLLs for runtime copy ----------------------------------------
+    find_file(FBXSDK_DLL_RELEASE
+        NAMES libfbxsdk.dll
+        PATHS "${FBXSDK_ROOT}/lib/x64/release"
+        NO_DEFAULT_PATH
+    )
 
-find_file(FBXSDK_DLL_DEBUG
-    NAMES libfbxsdk.dll
-    PATHS "${FBXSDK_ROOT}/lib/x64/debug"
-    NO_DEFAULT_PATH
-)
+    find_file(FBXSDK_DLL_DEBUG
+        NAMES libfbxsdk.dll
+        PATHS "${FBXSDK_ROOT}/lib/x64/debug"
+        NO_DEFAULT_PATH
+    )
+else()
+    # --- Linux: Find shared/static libraries --------------------------------
+    find_library(FBXSDK_LIBRARY_RELEASE
+        NAMES fbxsdk
+        PATHS "${FBXSDK_ROOT}/lib"
+        NO_DEFAULT_PATH
+    )
+
+    find_library(FBXSDK_LIBRARY_DEBUG
+        NAMES fbxsdk_d fbxsdk
+        PATHS "${FBXSDK_ROOT}/lib"
+        NO_DEFAULT_PATH
+    )
+endif()
 
 # --- Standard find_package handling -----------------------------------------
 include(FindPackageHandleStandardArgs)
