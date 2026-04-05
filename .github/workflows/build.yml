@@ -30,6 +30,10 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
+      - name: Fetch vcpkg baseline
+        run: git -C C:\vcpkg fetch --depth=1 origin 77df67cfff9c12ccfdb52284e07c87c75092f723
+        shell: cmd
+
       - name: Configure
         run: >
           cmake -B build -S .
