@@ -93,3 +93,10 @@ add_custom_command(TARGET HalbyFbxEditor POST_BUILD
         "$<IF:$<CONFIG:Debug>,${_qt6_prefix}/debug/Qt6/plugins/platforms/qwindowsd.dll,${_qt6_prefix}/Qt6/plugins/platforms/qwindows.dll>"
         "$<TARGET_FILE_DIR:HalbyFbxEditor>/platforms/"
 )
+
+# Copy FBX SDK DLL to output directory
+add_custom_command(TARGET HalbyFbxEditor POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "$<IF:$<CONFIG:Debug>,${FBXSDK_DLL_DEBUG},${FBXSDK_DLL_RELEASE}>"
+        "$<TARGET_FILE_DIR:HalbyFbxEditor>/"
+)

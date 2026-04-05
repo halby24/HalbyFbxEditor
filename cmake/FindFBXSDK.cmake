@@ -27,39 +27,28 @@ find_path(FBXSDK_INCLUDE_DIR
     NO_DEFAULT_PATH
 )
 
-# --- Find libraries (Debug / Release) --------------------------------------
+# --- Find import libraries (Dynamic Link) -----------------------------------
 find_library(FBXSDK_LIBRARY_RELEASE
-    NAMES libfbxsdk-md
+    NAMES libfbxsdk
     PATHS "${FBXSDK_ROOT}/lib/x64/release"
     NO_DEFAULT_PATH
 )
 
 find_library(FBXSDK_LIBRARY_DEBUG
-    NAMES libfbxsdk-md
+    NAMES libfbxsdk
     PATHS "${FBXSDK_ROOT}/lib/x64/debug"
     NO_DEFAULT_PATH
 )
 
-find_library(FBXSDK_XML2_RELEASE
-    NAMES libxml2-md
+# --- Find DLLs for runtime copy --------------------------------------------
+find_file(FBXSDK_DLL_RELEASE
+    NAMES libfbxsdk.dll
     PATHS "${FBXSDK_ROOT}/lib/x64/release"
     NO_DEFAULT_PATH
 )
 
-find_library(FBXSDK_XML2_DEBUG
-    NAMES libxml2-md
-    PATHS "${FBXSDK_ROOT}/lib/x64/debug"
-    NO_DEFAULT_PATH
-)
-
-find_library(FBXSDK_ZLIB_RELEASE
-    NAMES zlib-md
-    PATHS "${FBXSDK_ROOT}/lib/x64/release"
-    NO_DEFAULT_PATH
-)
-
-find_library(FBXSDK_ZLIB_DEBUG
-    NAMES zlib-md
+find_file(FBXSDK_DLL_DEBUG
+    NAMES libfbxsdk.dll
     PATHS "${FBXSDK_ROOT}/lib/x64/debug"
     NO_DEFAULT_PATH
 )
@@ -79,8 +68,9 @@ if(FBXSDK_FOUND AND NOT TARGET FBXSDK::FBXSDK)
 
     set_target_properties(FBXSDK::FBXSDK PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES "${FBXSDK_INCLUDE_DIR}"
+        INTERFACE_COMPILE_DEFINITIONS "FBXSDK_SHARED"
         INTERFACE_LINK_LIBRARIES
-            "$<IF:$<CONFIG:Debug>,${FBXSDK_LIBRARY_DEBUG};${FBXSDK_XML2_DEBUG};${FBXSDK_ZLIB_DEBUG},${FBXSDK_LIBRARY_RELEASE};${FBXSDK_XML2_RELEASE};${FBXSDK_ZLIB_RELEASE}>"
+            "$<IF:$<CONFIG:Debug>,${FBXSDK_LIBRARY_DEBUG},${FBXSDK_LIBRARY_RELEASE}>"
     )
 endif()
 
@@ -88,8 +78,6 @@ mark_as_advanced(
     FBXSDK_INCLUDE_DIR
     FBXSDK_LIBRARY_RELEASE
     FBXSDK_LIBRARY_DEBUG
-    FBXSDK_XML2_RELEASE
-    FBXSDK_XML2_DEBUG
-    FBXSDK_ZLIB_RELEASE
-    FBXSDK_ZLIB_DEBUG
+    FBXSDK_DLL_RELEASE
+    FBXSDK_DLL_DEBUG
 )
