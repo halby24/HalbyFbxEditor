@@ -61,4 +61,4 @@ src/
 
 ## ライセンス
 
-<!-- TODO: ライセンスを追加 -->
+[MIT License](LICENSE)
