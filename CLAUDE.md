@@ -5,23 +5,34 @@ FBX SDK を使った FBX ファイルエディタ（Qt6 Widgets）。
 ## ビルド
 
 ### 前提条件
-- Visual Studio 18 (2025)
-- vcpkg (`C:/vcpkg`)
-- Qt6 (vcpkg経由: `vcpkg install qt6:x64-windows`)
+- Visual Studio 2022 (Build Tools でも可)
 - FBX SDK（cmake/FindFBXSDK.cmake で検出）
+- Qt6 — 以下のいずれかで導入:
+  - **方法A**: Qt Online Installer で MSVC 2022 64-bit をインストール
+  - **方法B**: vcpkg (`C:/vcpkg`) 経由でマニフェストモード自動取得
 
 ### ビルド手順
 
-```bash
-# CMake は VS 同梱版を使用
-CMAKE="C:/Program Files/Microsoft Visual Studio/18/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe"
+#### 方法A: Qt Online Installer を使う場合
 
-# Configure（初回のみ）
-"$CMAKE" -B build -S . -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+```bash
+# Configure（Qt のパスは環境に合わせて変更）
+cmake -B build -S . -DCMAKE_PREFIX_PATH=C:/Qt/6.11.0/msvc2022_64
 
 # Build
-"$CMAKE" --build build --config Debug
-"$CMAKE" --build build --config Release
+cmake --build build --config Debug
+cmake --build build --config Release
+```
+
+#### 方法B: vcpkg を使う場合
+
+```bash
+# Configure（vcpkg.json で Qt6 を自動取得）
+cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+# Build
+cmake --build build --config Debug
+cmake --build build --config Release
 ```
 
 出力先: `build/src/<Config>/HalbyFbxEditor.exe`

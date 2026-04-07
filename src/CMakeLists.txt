@@ -81,17 +81,26 @@ target_link_libraries(HalbyFbxEditor PRIVATE
 
 if(WIN32)
     # Copy Qt platform plugin to output directory
-    # vcpkg places release DLLs under <prefix>/Qt6/plugins/platforms/
-    # and debug DLLs under <prefix>/debug/Qt6/plugins/platforms/
+    # Supports both vcpkg layout and official Qt installer layout
     get_target_property(_qt6_core_loc Qt6::Core LOCATION)
     cmake_path(GET _qt6_core_loc PARENT_PATH _qt6_bin_dir)
     cmake_path(GET _qt6_bin_dir PARENT_PATH _qt6_prefix)
+
+    # vcpkg:     <prefix>/debug/Qt6/plugins/platforms/qwindowsd.dll
+    # Qt installer: <prefix>/plugins/platforms/qwindowsd.dll
+    if(EXISTS "${_qt6_prefix}/plugins/platforms/qwindowsd.dll")
+        set(_qt_platform_debug   "${_qt6_prefix}/plugins/platforms/qwindowsd.dll")
+        set(_qt_platform_release "${_qt6_prefix}/plugins/platforms/qwindows.dll")
+    else()
+        set(_qt_platform_debug   "${_qt6_prefix}/debug/Qt6/plugins/platforms/qwindowsd.dll")
+        set(_qt_platform_release "${_qt6_prefix}/Qt6/plugins/platforms/qwindows.dll")
+    endif()
 
     add_custom_command(TARGET HalbyFbxEditor POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory
             "$<TARGET_FILE_DIR:HalbyFbxEditor>/platforms"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "$<IF:$<CONFIG:Debug>,${_qt6_prefix}/debug/Qt6/plugins/platforms/qwindowsd.dll,${_qt6_prefix}/Qt6/plugins/platforms/qwindows.dll>"
+            "$<IF:$<CONFIG:Debug>,${_qt_platform_debug},${_qt_platform_release}>"
             "$<TARGET_FILE_DIR:HalbyFbxEditor>/platforms/"
     )
 
