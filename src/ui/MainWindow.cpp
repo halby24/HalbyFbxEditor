@@ -33,7 +33,13 @@ MainWindow::MainWindow(QWidget* parent)
     });
 }
 
-MainWindow::~MainWindow() = default;
+MainWindow::~MainWindow()
+{
+    // mDocument (unique_ptr) はメンバ破棄順で QUndoStack より先に消える。
+    // QUndoStack のデストラクタが EditPropertyCommand::undo() を呼ぶと
+    // 破棄済み FbxNode* にアクセスしてクラッシュするため、先にクリアする。
+    mUndoStack->clear();
+}
 
 void MainWindow::setupMenuBar()
 {

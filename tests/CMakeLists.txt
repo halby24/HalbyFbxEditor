@@ -50,3 +50,6 @@ target_link_libraries(test_NodeTreeModel PRIVATE model_lib)
 
 add_qtest(test_PropertyTreeModel test_PropertyTreeModel.cpp)
 target_link_libraries(test_PropertyTreeModel PRIVATE model_lib)
+
+add_qtest(test_EditPropertyCommand test_EditPropertyCommand.cpp)
+target_link_libraries(test_EditPropertyCommand PRIVATE command_lib model_lib)
