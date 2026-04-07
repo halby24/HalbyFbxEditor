@@ -7,6 +7,9 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QApplication>
+#include <QMouseEvent>
+#include <QPainter>
 
 PropertyDelegate::PropertyDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
@@ -43,8 +46,9 @@ QWidget* PropertyDelegate::createEditor(QWidget* parent,
 
     if (metatype == QMetaType::Bool)
     {
-        auto* cb = new QCheckBox(parent);
-        return cb;
+        // Bool properties are handled via paint() + editorEvent() for single-click toggle.
+        // No editor widget needed.
+        return nullptr;
     }
 
     if (metatype == QMetaType::Int)
@@ -179,4 +183,71 @@ void PropertyDelegate::updateEditorGeometry(QWidget* editor,
     const QStyleOptionViewItem& option, const QModelIndex&) const
 {
     editor->setGeometry(option.rect);
+}
+
+bool PropertyDelegate::isBoolProperty(const QModelIndex& index) const
+{
+    if (!index.isValid() || index.column() != 1) return false;
+    return index.data(Qt::UserRole).toInt() == QMetaType::Bool;
+}
+
+QRect PropertyDelegate::checkBoxRect(const QStyleOptionViewItem& option) const
+{
+    QStyleOptionButton checkOpt;
+    QRect cbRect = QApplication::style()->subElementRect(QStyle::SE_CheckBoxIndicator, &checkOpt);
+    // Center vertically, left-align with small margin
+    QPoint topLeft(option.rect.left() + 4,
+                   option.rect.top() + (option.rect.height() - cbRect.height()) / 2);
+    return QRect(topLeft, cbRect.size());
+}
+
+void PropertyDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
+    const QModelIndex& index) const
+{
+    if (isBoolProperty(index))
+    {
+        // Draw background (selection highlight, etc.)
+        QStyleOptionViewItem bgOption = option;
+        initStyleOption(&bgOption, index);
+        bgOption.text.clear();
+        QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &bgOption, painter);
+
+        // Draw checkbox
+        QStyleOptionButton checkOpt;
+        checkOpt.rect = checkBoxRect(option);
+        checkOpt.state = QStyle::State_Enabled;
+        if (index.data(Qt::EditRole).toBool())
+            checkOpt.state |= QStyle::State_On;
+        else
+            checkOpt.state |= QStyle::State_Off;
+
+        QApplication::style()->drawControl(QStyle::CE_CheckBox, &checkOpt, painter);
+        return;
+    }
+
+    QStyledItemDelegate::paint(painter, option, index);
+}
+
+bool PropertyDelegate::editorEvent(QEvent* event, QAbstractItemModel* model,
+    const QStyleOptionViewItem& option, const QModelIndex& index)
+{
+    if (!isBoolProperty(index))
+        return QStyledItemDelegate::editorEvent(event, model, option, index);
+
+    // Toggle on single click
+    if (event->type() == QEvent::MouseButtonRelease)
+    {
+        auto* mouseEvent = static_cast<QMouseEvent*>(event);
+        if (option.rect.contains(mouseEvent->pos()))
+        {
+            bool readOnly = index.data(Qt::UserRole + 2).toBool();
+            if (readOnly) return false;
+
+            bool current = index.data(Qt::EditRole).toBool();
+            model->setData(index, !current, Qt::EditRole);
+            return true;
+        }
+    }
+
+    return QStyledItemDelegate::editorEvent(event, model, option, index);
 }

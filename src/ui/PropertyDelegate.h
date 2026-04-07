@@ -15,4 +15,12 @@ public:
                       const QModelIndex& index) const override;
     void updateEditorGeometry(QWidget* editor, const QStyleOptionViewItem& option,
                               const QModelIndex& index) const override;
+    void paint(QPainter* painter, const QStyleOptionViewItem& option,
+               const QModelIndex& index) const override;
+    bool editorEvent(QEvent* event, QAbstractItemModel* model,
+                     const QStyleOptionViewItem& option, const QModelIndex& index) override;
+
+private:
+    bool isBoolProperty(const QModelIndex& index) const;
+    QRect checkBoxRect(const QStyleOptionViewItem& option) const;
 };
