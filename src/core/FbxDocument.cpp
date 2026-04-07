@@ -33,8 +33,8 @@ bool FbxDocumentManager::open(const QString& path)
     try
     {
         initManager();
-        std::string stdPath = path.toStdString();
-        mScene = FbxFileIO::Import(mManager, stdPath);
+        QByteArray utf8 = path.toUtf8();
+        mScene = FbxFileIO::Import(mManager, std::string(utf8.constData(), utf8.size()));
         mFilePath = path;
         mModified = false;
         return true;
@@ -61,7 +61,8 @@ bool FbxDocumentManager::saveAs(const QString& path)
     }
     try
     {
-        FbxFileIO::Export(mManager, mScene, path.toStdString());
+        QByteArray utf8 = path.toUtf8();
+        FbxFileIO::Export(mManager, mScene, std::string(utf8.constData(), utf8.size()));
         mFilePath = path;
         mModified = false;
         return true;
