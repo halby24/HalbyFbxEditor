@@ -6,7 +6,8 @@
       "name": "qtbase",
       "default-features": false,
       "features": ["widgets"]
-    }
+    },
+    "gtest"
   ],
   "builtin-baseline": "77df67cfff9c12ccfdb52284e07c87c75092f723"
 }
